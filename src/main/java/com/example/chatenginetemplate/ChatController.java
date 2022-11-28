@@ -41,7 +41,7 @@ public class ChatController {
     @PutMapping("/chat")
     public ResponseEntity<Message> getUserInput(@RequestBody Message message) {
         chatService.saveUserInput(message);
-        return new ResponseEntity<>(message, HttpStatus.CREATED);
+        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/chat")

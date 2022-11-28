@@ -33,7 +33,6 @@ public class ChatRepository {
         Message userMessage = new Message("H: " + message.getText());
         userMessages.add(userMessage);
         String text = chatSession.getMessagesList().get(0);
-        chatSession.getMessagesList().remove(0);
         String variableName = text.substring(text.indexOf(">=(") + 3, text.length() - 1);
         userInputs.put(variableName, message.getText());
     }
@@ -43,27 +42,31 @@ public class ChatRepository {
         if (!userMessages.isEmpty()) {
             messagesToSend.add(userMessages.get(0));
             userMessages.remove(0);
+            chatSession.getMessagesList().remove(0);
         }
+        int count = 0;
         for (String message : chatSession.getMessagesList()) {
             if (messageContainsUserData(message)) {
-                messagesToSend.add(new Message(sendMessageWithUserData(message)));
-                chatSession.getMessagesList().remove(0);
+                messagesToSend.add(new Message(messageWithUserData(message)));
+                count++;
             } else if (message.startsWith("R:")) {
                 messagesToSend.add(new Message(message));
-                chatSession.getMessagesList().remove(0);
+                count++;
             } else {
                 break;
             }
         }
+        chatSession.getMessagesList().subList(0, count).clear();
         return messagesToSend;
     }
+
 
     public boolean messageContainsUserData(String text) {
         return text.contains("${");
     }
 
 
-    public String sendMessageWithUserData(String text) {
+    public String messageWithUserData(String text) {
         List<String> wordList = List.of(text.split(" "));
         String message = String.join(" ", wordList.stream().map(word -> word.contains("${") ?
                         word.replace(partToReplace(word), userInputs.get(variableToString(word))) : word)
